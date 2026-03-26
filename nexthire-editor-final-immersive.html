@@ -1,0 +1,2387 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextHire — Crie Currículos Profissionais com IA</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0a0a0a;
+            --neon-blue: #00bfff;
+            --white: #ffffff;
+            --gray-metal: #1a1a1a;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--white);
+            overflow-x: hidden;
+        }
+        
+
+        
+        /* AUDIO CONTROL */
+        #audio-control {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 191, 255, 0.2);
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 9998;
+            transition: all 0.3s;
+        }
+        
+        #audio-control:hover {
+            background: rgba(0, 191, 255, 0.4);
+            transform: scale(1.1);
+        }
+        
+        /* MAIN SITE */
+        #main-site {
+            opacity: 1;
+        }
+        
+        /* PARTICLES BACKGROUND */
+        #particles-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .opening-logo {
+                font-size: 3rem;
+            }
+            
+            .skip-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+        }
+    
+        :root {
+            --bg: #000000;
+            --bg-secondary: #0A1628;
+            --card: #0A1628;
+            --card-hover: #1a2638;
+            --muted: #C0C0C0;
+            --text: #f9fafb;
+            --text-secondary: #d1d5db;
+            --brand: #00D9FF;
+            --brand-2: #00B8D4;
+            --brand-3: #00D9FF;
+            --success: #00D9FF;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border: rgba(0, 217, 255, .2);
+            --border-light: rgba(0, 217, 255, .1);
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, .4), 0 10px 10px -5px rgba(0, 0, 0, .2);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, .5);
+            --glow: 0 0 20px rgba(0, 217, 255, .5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, .15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(139, 92, 246, .15) 0%, transparent 50%), radial-gradient(circle at 40% 40%, rgba(6, 182, 212, .1) 0%, transparent 50%), linear-gradient(135deg, var(--bg) 0%, var(--bg-secondary) 100%);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--brand), var(--brand-2));
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 5px rgba(16, 185, 129, .5);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(16, 185, 129, .8), 0 0 30px rgba(16, 185, 129, .4);
+            }
+        }
+
+        @keyframes gradient-shift {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: clamp(28px, 4vw, 42px);
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--text), var(--brand-2));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: var(--muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            backdrop-filter: saturate(1.8) blur(20px);
+            background: rgba(10, 15, 28, .85);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        header.scrolled {
+            background: rgba(10, 15, 28, .95);
+            box-shadow: var(--shadow);
+        }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 72px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            cursor: pointer;
+        }
+
+        .brand .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: grid;
+            place-items: center;
+            box-shadow: var(--glow);
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .brand:hover .logo {
+            transform: rotate(5deg) scale(1.05);
+        }
+
+        .brand-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-text .title {
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .brand-text .subtitle {
+            font-size: 11px;
+            opacity: 0.7;
+            font-weight: 500;
+            margin-top: -2px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-weight: 500;
+            opacity: 0.8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-links a:hover::before {
+            left: 100%;
+        }
+
+        .cta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .1), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, .2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, .3);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn.primary {
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            border: none;
+            color: #ffffff;
+            font-weight: 700;
+            box-shadow: var(--glow);
+        }
+
+        .btn.primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 0 30px rgba(59, 130, 246, .4), 0 8px 25px rgba(0, 0, 0, .3);
+        }
+
+        /* Mobile menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(10, 15, 28, .95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu a {
+            display: block;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        /* Hero */
+        .hero {
+            padding: 120px 0 80px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(59, 130, 246, .05) 0%, transparent 70%);
+            animation: gradient-shift 20s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        .hero-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero .announcement {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, .1), rgba(139, 92, 246, .1));
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .hero .announcement:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--glow);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-glow 2s infinite;
+        }
+
+        .hero h1 {
+            font-size: clamp(36px, 6vw, 64px);
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 0 0 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #ffffff 0%, #3b82f6 50%, #06b6d4 100%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: gradient-shift 8s ease infinite;
+        }
+
+        .hero .subtitle {
+            color: var(--text-secondary);
+            font-size: 20px;
+            line-height: 1.6;
+            margin-bottom: 32px;
+            font-weight: 400;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 48px;
+            padding-top: 32px;
+            border-top: 1px solid var(--border-light);
+            justify-content: center;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--brand);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .hero-visual {
+            position: relative;
+        }
+
+        .hero-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
+            padding: 24px;
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .3), transparent);
+        }
+
+        .preview {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            position: relative;
+        }
+
+        .preview .browser-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, .2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .browser-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .browser-dot.red {
+            background: #ef4444;
+        }
+
+        .browser-dot.yellow {
+            background: #f59e0b;
+        }
+
+        .browser-dot.green {
+            background: #10b981;
+        }
+
+        .browser-dot:hover {
+            transform: scale(1.2);
+        }
+
+        .address-bar {
+            flex: 1;
+            margin-left: 16px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .preview iframe {
+            width: 100%;
+            height: 480px;
+            border: 0;
+            background: #fff;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .floating-card {
+            position: absolute;
+            background: rgba(255, 255, 255, .1);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 12px;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .floating-card:nth-child(1) {
+            top: 20%;
+            right: -10%;
+            animation-delay: 0s;
+        }
+
+        .floating-card:nth-child(2) {
+            bottom: 30%;
+            left: -15%;
+            animation-delay: 2s;
+        }
+
+        /* Sections */
+        .section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        .section:nth-child(even) {
+            background: rgba(255, 255, 255, .01);
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .feature-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: var(--shadow);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, .1), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--brand);
+            box-shadow: var(--shadow-lg), var(--glow);
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--glow);
+        }
+
+        .feature-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* How it works */
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand), var(--brand-3));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 auto 24px;
+            box-shadow: var(--glow);
+            position: relative;
+        }
+
+        .step-number::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--brand), transparent);
+            transform: translateY(-50%);
+        }
+
+        .step:last-child .step-number::after {
+            display: none;
+        }
+
+        .step h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .step p {
+            color: var(--muted);
+        }
+
+        /* Templates */
+        .templates-container {
+            position: relative;
+            margin-top: 60px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .template-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .template-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: var(--brand);
+            box-shadow: var(--shadow-lg), var(--glow);
+        }
+
+        .template-preview {
+            height: 240px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-preview::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, .2), transparent);
+        }
+
+        .template-info {
+            padding: 20px;
+        }
+
+        .template-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .template-desc {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .template-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 0, 0, .8);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .testimonial {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            position: relative;
+        }
+
+        .testimonial::before {
+            content: '"';
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            font-size: 60px;
+            color: var(--brand);
+            font-weight: 800;
+        }
+
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .author-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+        }
+
+        .author-info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .author-info p {
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        /* Pricing */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 32px;
+            margin-top: 60px;
+        }
+
+        .pricing-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .02));
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px 32px;
+            text-align: center;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--brand);
+            box-shadow: var(--glow);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'Mais Popular';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            color: white;
+            padding: 8px 24px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--brand);
+        }
+
+        .pricing-card.featured:hover {
+            transform: translateY(-8px) scale(1.05);
+        }
+
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .plan-price {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--brand);
+            margin-bottom: 8px;
+        }
+
+        .plan-period {
+            color: var(--muted);
+            margin-bottom: 32px;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 32px;
+        }
+
+        .plan-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .plan-features .check {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* FAQ */
+        .faq-container {
+            max-width: 800px;
+            margin: 60px auto 0;
+        }
+
+        .faq-item {
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover {
+            border-color: var(--brand);
+        }
+
+        .faq-question {
+            padding: 24px;
+            background: rgba(255, 255, 255, .02);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .faq-answer {
+            padding: 0 24px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.active .faq-answer {
+            padding: 24px;
+            max-height: 200px;
+        }
+
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 60px 0 30px;
+            margin-top: 100px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .footer-brand .logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: grid;
+            place-items: center;
+        }
+
+        .footer-desc {
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .social-link:hover {
+            background: var(--brand);
+            transform: translateY(-2px);
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--brand);
+        }
+
+        .footer-bottom {
+            padding-top: 30px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+                gap: 40px;
+                text-align: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            .step-number::after {
+                display: none;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 100px 0 60px;
+            }
+
+            .hero h1 {
+                font-size: clamp(28px, 8vw, 48px);
+            }
+
+            .hero-actions {
+                justify-content: center;
+            }
+
+            .section {
+                padding: 60px 0;
+            }
+
+            .features-grid,
+            .templates-grid,
+            .testimonials-grid,
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: none;
+            }
+
+            .pricing-card.featured:hover {
+                transform: translateY(-8px);
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    
+</style>
+</head>
+<body>
+
+    <!-- PARTICLES BACKGROUND -->
+    <canvas id="particles-bg"></canvas>
+    
+    <!-- AUDIO CONTROL -->
+    <div id="audio-control" onclick="toggleAudio()">
+        <i class="fas fa-volume-up" id="audio-icon"></i>
+    </div>
+    
+    <!-- MAIN SITE -->
+    <div id="main-site">
+    <header id="header">
+        <div class="container nav">
+            <div class="brand" onclick="scrollToTop()">
+                <div class="logo">
+                    <img src="nexthire-logo.png" alt="NextHire Logo" width="50" height="50" style="display: block; border: 2px solid #00D9FF; border-radius: 10px; padding: 6px; background: rgba(0, 217, 255, 0.1); box-shadow: 0 0 15px rgba(0, 217, 255, 0.4);">
+                </div>
+                <div class="brand-text">
+                    <div class="title">NextHire</div>
+                    <div class="subtitle">Currículos Profissionais</div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#recursos">Recursos</a>
+                <a href="#como-funciona">Como Funciona</a>
+                <a href="#templates">Templates</a>
+                <a href="#depoimentos">Depoimentos</a>
+                <a href="#precos">Preços</a>
+                <a href="#faq">FAQ</a>
+            </div>
+            <div class="cta">
+                <button class="btn" onclick="showLogin()">Entrar</button>
+                <button class="btn primary" onclick="openEditor()">
+                    <i class="fas fa-rocket"></i> Começar Grátis
+                </button>
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="#recursos" onclick="closeMobileMenu()">Recursos</a>
+            <a href="#como-funciona" onclick="closeMobileMenu()">Como Funciona</a>
+            <a href="#templates" onclick="closeMobileMenu()">Templates</a>
+            <a href="#depoimentos" onclick="closeMobileMenu()">Depoimentos</a>
+            <a href="#precos" onclick="closeMobileMenu()">Preços</a>
+            <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
+            <div style="margin-top: 20px;">
+                <button class="btn" onclick="showLogin()" style="width: 100%; margin-bottom: 12px;">Entrar</button>
+                <button class="btn primary" onclick="openEditor()" style="width: 100%;">Começar Grátis</button>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="floating-elements">
+            <div class="floating-card">
+                <i class="fas fa-magic"></i> IA Integrada
+            </div>
+            <div class="floating-card">
+                <i class="fas fa-download"></i> Export PDF/DOCX
+            </div>
+        </div>
+        <div class="container hero-grid">
+            <div class="hero-content fade-in">
+                <div class="announcement">
+                    <span class="pulse-dot"></span>
+                    <span>🚀 Novo: Otimização automática para ATS</span>
+                </div>
+                <h1>
+                    Crie seu <span class="gradient-text">currículo profissional</span> em minutos, com inteligência
+                    artificial
+                </h1>
+                <p class="subtitle">
+                    Templates modernos, sugestões inteligentes e exportação perfeita.
+                    Mais de <strong>50.000 profissionais</strong> já conseguiram suas vagas dos sonhos.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn primary" onclick="openEditor()">
+                        <i class="fas fa-rocket"></i> Criar Currículo Grátis
+                    </button>
+                    <button class="btn" onclick="scrollToSection('recursos')">
+                        <i class="fas fa-play"></i> Ver Como Funciona
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <span class="stat-number">50K+</span>
+                        <span class="stat-label">Currículos criados</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">4.9★</span>
+                        <span class="stat-label">Avaliação média</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">85%</span>
+                        <span class="stat-label">Taxa de aprovação</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="recursos" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Recursos que fazem a diferença</h2>
+                <p>Tudo o que você precisa para criar um currículo que se destaca</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>IA que escreve por você</h3>
+                    <p>
+                        Nossa inteligência artificial sugere conteúdo personalizado baseado na sua área e experiência,
+                        economizando horas de trabalho.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Otimizado para ATS</h3>
+                    <p>
+                        Layouts e formatação otimizados para passar pelos filtros automáticos das empresas e chegar até
+                        os recrutadores.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3>Exportação perfeita</h3>
+                    <p>
+                        Exporte em PDF de alta qualidade ou DOCX editável, mantendo a formatação impecável em qualquer
+                        dispositivo.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Personalização total</h3>
+                    <p>
+                        Cores, fontes, espaçamentos e layouts completamente customizáveis para refletir sua
+                        personalidade
+                        profissional.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>Criação em minutos</h3>
+                    <p>
+                        Interface intuitiva que permite criar um currículo profissional em menos de 10 minutos, mesmo
+                        sem
+                        experiência em design.
+                    </p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Dados seguros</h3>
+                    <p>
+                        Seus dados são criptografados e protegidos. Você tem controle total sobre suas informações
+                        pessoais.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="como-funciona" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Como funciona</h2>
+                <p>Três passos simples para o currículo perfeito</p>
+            </div>
+            <div class="steps">
+                <div class="step fade-in">
+                    <div class="step-number">1</div>
+                    <h3>Escolha seu template</h3>
+                    <p>
+                        Selecione entre dezenas de templates profissionais criados por designers especialistas em
+                        recrutamento.
+                    </p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">2</div>
+                    <h3>Preencha com IA</h3>
+                    <p>
+                        Nossa inteligência artificial ajuda você a escrever cada seção, sugerindo conteúdo relevante e
+                        impactante.
+                    </p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step-number">3</div>
+                    <h3>Baixe e candidate-se</h3>
+                    <p>
+                        Exporte seu currículo em PDF ou DOCX e comece a se candidatar às vagas dos seus sonhos hoje
+                        mesmo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="templates" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Templates profissionais</h2>
+                <p>Designs modernos criados por especialistas em recrutamento</p>
+            </div>
+            <div class="templates-grid">
+                <!-- Profissionais -->
+                <div class="template-card fade-in" onclick="selectTemplate('minimal-clean')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #2563eb, #1d4ed8);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Minimal Clean</div>
+                        <div class="template-desc">Design limpo padrão, perfeito para qualquer área</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('corporate-blue')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #1e40af, #1e3a8a);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Corporate Blue</div>
+                        <div class="template-desc">Layout corporativo com estrutura profissional</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('business-gray')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #6b7280, #4b5563);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Business Gray</div>
+                        <div class="template-desc">Cards executivos com design elegante</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('modern-sidebar')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #0f172a, #1e293b);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Modern Sidebar</div>
+                        <div class="template-desc">Sidebar escura moderna e sofisticada</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('sidebar-professional')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #475569, #334155);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Sidebar Professional</div>
+                        <div class="template-desc">Sidebar cinza profissional</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('clean-minimal')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #60A5FA, #3b82f6);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Clean Minimal</div>
+                        <div class="template-desc">Minimalista com foco no centro</div>
+                    </div>
+                </div>
+                
+                <!-- Criativos -->
+                <div class="template-card fade-in" onclick="selectTemplate('creative-gradient')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #e91e63, #9c27b0);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Creative Gradient</div>
+                        <div class="template-desc">Gradiente vibrante para criativos</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('turquoise-gradient')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #5EEAD4, #14B8A6);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Turquoise Gradient</div>
+                        <div class="template-desc">Gradiente turquesa moderno</div>
+                    </div>
+                </div>
+                
+                <!-- Tecnologia -->
+                <div class="template-card fade-in" onclick="selectTemplate('tech-dark')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #0d1117, #161b22);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Tech Dark</div>
+                        <div class="template-desc">GitHub style para desenvolvedores</div>
+                    </div>
+                </div>
+                <div class="template-card fade-in" onclick="selectTemplate('dark-terminal')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #1E293B, #0F172A);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Dark Terminal</div>
+                        <div class="template-desc">Terminal code style para tech</div>
+                    </div>
+                </div>
+                
+                <!-- Executivo -->
+                <div class="template-card fade-in" onclick="selectTemplate('executive-gold')">
+                    <div class="template-preview" style="background: linear-gradient(135deg, #d4af37, #b8941f);"></div>
+                    <div class="template-badge">Grátis</div>
+                    <div class="template-info">
+                        <div class="template-name">Executive Gold</div>
+                        <div class="template-desc">Dourado luxuoso para executivos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="depoimentos" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>O que nossos usuários dizem</h2>
+                <p>Histórias reais de profissionais que conseguiram suas vagas dos sonhos</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial fade-in">
+                    <div class="testimonial-text">
+                        "Consegui minha vaga de desenvolvedor em uma startup em apenas 2 semanas usando o NextHire. O
+                        template tech é perfeito e a IA me ajudou muito com as descrições."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MR</div>
+                        <div class="author-info">
+                            <h4>Marcos Roberto</h4>
+                            <p>Desenvolvedor Full Stack</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial fade-in">
+                    <div class="testimonial-text">
+                        "Estava desempregada há 6 meses. Com o currículo criado no NextHire, recebi 3 propostas na primeira
+                        semana. A diferença é impressionante!"
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AS</div>
+                        <div class="author-info">
+                            <h4>Ana Silva</h4>
+                            <p>Gerente de Marketing</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial fade-in">
+                    <div class="testimonial-text">
+                        "Como recrutador, vejo centenas de currículos por dia. Os criados no NextHire sempre se destacam
+                        pela qualidade e organização das informações."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">CF</div>
+                        <div class="author-info">
+                            <h4>Carlos Ferreira</h4>
+                            <p>Head de Recrutamento</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="precos" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Planos para todos os perfis</h2>
+                <p>Comece grátis e evolua conforme suas necessidades</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card fade-in">
+                    <div class="plan-name">Gratuito</div>
+                    <div class="plan-price">R$ 0</div>
+                    <div class="plan-period">Para sempre</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✓</span> 2 templates básicos</li>
+                        <li><span class="check">✓</span> 1 currículo</li>
+                        <li><span class="check">✓</span> Export em PDF</li>
+                        <li><span class="check">✓</span> Suporte por email</li>
+                    </ul>
+                    <button class="btn primary" onclick="openEditor()">Começar Grátis</button>
+                </div>
+                <div class="pricing-card featured fade-in">
+                    <div class="plan-name">Profissional</div>
+                    <div class="plan-price">R$ 29</div>
+                    <div class="plan-period">por mês</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✓</span> Todos os templates</li>
+                        <li><span class="check">✓</span> Currículos ilimitados</li>
+                        <li><span class="check">✓</span> IA avançada</li>
+                        <li><span class="check">✓</span> Export PDF + DOCX</li>
+                        <li><span class="check">✓</span> Carta de apresentação</li>
+                        <li><span class="check">✓</span> Suporte prioritário</li>
+                    </ul>
+                    <button class="btn primary" onclick="showPricing()">Escolher Plano</button>
+                </div>
+                <div class="pricing-card fade-in">
+                    <div class="plan-name">Empresarial</div>
+                    <div class="plan-price">R$ 99</div>
+                    <div class="plan-period">por mês</div>
+                    <ul class="plan-features">
+                        <li><span class="check">✓</span> Tudo do Profissional</li>
+                        <li><span class="check">✓</span> 10 usuários</li>
+                        <li><span class="check">✓</span> Templates personalizados</li>
+                        <li><span class="check">✓</span> Branding da empresa</li>
+                        <li><span class="check">✓</span> Relatórios e analytics</li>
+                        <li><span class="check">✓</span> Suporte dedicado</li>
+                    </ul>
+                    <button class="btn primary" onclick="showPricing()">Falar com Vendas</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section">
+        <div class="container">
+            <div class="section-header fade-in">
+                <h2>Perguntas frequentes</h2>
+                <p>Tire suas dúvidas sobre o NextHire</p>
+            </div>
+            <div class="faq-container">
+                <div class="faq-item fade-in" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>O NextHire é realmente gratuito?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            Sim! Oferecemos um plano gratuito permanente com 2 templates e 1 currículo. Você pode criar
+                            e
+                            baixar seu currículo sem pagar nada.
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>Como funciona a inteligência artificial?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            Nossa IA analisa sua área de atuação e experiência para sugerir conteúdo relevante, otimizar
+                            palavras-chave e ajustar o tom do texto para sua área profissional.
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>Posso cancelar minha assinatura a qualquer momento?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            Claro! Não há fidelidade. Você pode cancelar sua assinatura a qualquer momento e continuar
+                            usando os recursos até o final do período pago.
+                        </p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in" onclick="toggleFaq(this)">
+                    <div class="faq-question">
+                        <span>Os currículos passam pelos filtros ATS?</span>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            Sim! Todos os nossos templates são otimizados para ATS (Applicant Tracking Systems),
+                            garantindo que seu currículo seja lido corretamente pelos sistemas de recrutamento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-brand">
+                        <div class="logo">
+                            <img src="nexthire-logo.png" alt="NextHire Logo" width="32" height="32" style="display: block; border: 2px solid #00D9FF; border-radius: 6px; padding: 4px; background: rgba(0, 217, 255, 0.1);">
+                        </div>
+                        <div>
+                            <div style="font-weight: 700; font-size: 18px;">NextHire</div>
+                            <div style="font-size: 12px; opacity: 0.7;">Currículos Profissionais</div>
+                        </div>
+                    </div>
+                    <div class="footer-desc">
+                        Criamos a plataforma mais intuitiva e poderosa para criação de currículos profissionais.
+                        Mais de 50.000 profissionais já conseguiram suas vagas dos sonhos conosco.
+                    </div>
+                    <div class="social-links">
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Produto</h4>
+                    <ul class="footer-links">
+                        <li><a href="#recursos">Recursos</a></li>
+                        <li><a href="#templates">Templates</a></li>
+                        <li><a href="#precos">Preços</a></li>
+                        <li><a href="#" onclick="openEditor()">Editor</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Suporte</h4>
+                    <ul class="footer-links">
+                        <li><a href="#faq">FAQ</a></li>
+                        <li><a href="#">Central de Ajuda</a></li>
+                        <li><a href="#">Contato</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Legal</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Termos de Uso</a></li>
+                        <li><a href="#">Política de Privacidade</a></li>
+                        <li><a href="#">Cookies</a></li>
+                        <li><a href="#">LGPD</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div>© 2025 NextHire. Todos os direitos reservados.</div>
+                <div>Feito com ❤️ no Brasil</div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Fade in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, observerOptions);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            fadeElements.forEach(el => observer.observe(el));
+            
+            // Verificar se usuário está logado
+            const user = getCurrentUser();
+            if (user) {
+                // Atualizar botões do header
+                const ctaDiv = document.querySelector('.cta');
+                if (ctaDiv) {
+                    ctaDiv.innerHTML = `
+                        <div onclick="window.location.href='profile.html'" style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
+                                ${user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 600; font-size: 13px;">${user.name}</span>
+                                <span style="font-size: 11px; color: var(--muted);">${user.email}</span>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="logout()" style="margin-left: 8px;">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    `;
+                }
+            }
+        });
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.remove('active');
+        }
+
+        // Smooth scroll
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // FAQ toggle
+        function toggleFaq(element) {
+            element.classList.toggle('active');
+        }
+
+        // Main functions
+        function openEditor() {
+            const user = getCurrentUser();
+            if (user) {
+                // Add loading state
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    window.location.href = 'nexthire-editor.html';
+                }, 800);
+            } else {
+                if (confirm('Você precisa estar logado para criar um currículo. Deseja fazer login agora?')) {
+                    window.location.href = 'login.html';
+                }
+            }
+        }
+
+        function selectTemplate(template) {
+            // Verificar se está logado
+            const user = getCurrentUser();
+            if (!user) {
+                if (confirm('Você precisa estar logado para criar um currículo. Deseja fazer login agora?')) {
+                    // Salvar template selecionado para usar após login
+                    localStorage.setItem('selectedTemplate', template);
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+
+            // Show template selection feedback
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.style.transform = 'scale(0.95)';
+                card.style.opacity = '0.7';
+            });
+
+            event.currentTarget.style.transform = 'scale(1.05)';
+            event.currentTarget.style.opacity = '1';
+            event.currentTarget.style.borderColor = 'var(--brand)';
+
+            // Salvar template selecionado
+            localStorage.setItem('selectedTemplate', template);
+
+            setTimeout(() => {
+                templateCards.forEach(card => {
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                    card.style.borderColor = '';
+                });
+                // Redirecionar para o editor
+                window.location.href = 'nexthire-editor.html';
+            }, 500);
+        }
+
+        function showLogin() {
+            window.location.href = 'login.html';
+        }
+
+        function showPricing() {
+            // Simulate pricing modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    backdrop-filter: blur(10px);
+                `;
+
+            modal.innerHTML = `
+                    <div style="
+                        background: var(--card);
+                        border: 1px solid var(--border);
+                        border-radius: 20px;
+                        padding: 40px;
+                        max-width: 400px;
+                        width: 90%;
+                        text-align: center;
+                    ">
+                        <h3 style="margin-bottom: 20px;">🚀 Em breve!</h3>
+                        <p style="color: var(--muted); margin-bottom: 30px;">
+                            Os planos pagos estarão disponíveis em breve.
+                            Por enquanto, aproveite todos os recursos gratuitamente!
+                        </p>
+                        <button class="btn primary" onclick="this.parentElement.parentElement.remove(); openEditor();">
+                            Experimentar Grátis
+                        </button>
+                        <button class="btn" onclick="this.parentElement.parentElement.remove();" style="margin-left: 10px;">
+                            Fechar
+                        </button>
+                    </div>
+                `;
+
+            document.body.appendChild(modal);
+        }
+
+        // Add smooth scroll to all anchor links
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('a[href^="#"]');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                        closeMobileMenu();
+                    }
+                });
+            });
+        });
+
+        // Add loading animation to buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = '';
+                });
+            });
+        });
+
+        // Preload critical resources
+        window.addEventListener('load', () => {
+            // Preload editor page
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = 'editor.html';
+            document.head.appendChild(link);
+        });
+    </script>
+</div>
+
+<script>
+        // OPENING 3D ANIMATION
+        let openingScene, openingCamera, openingRenderer, openingSphere;
+        let audioEnabled = false;
+        let ambientSound;
+        
+        function initOpening() {
+            const canvas = document.getElementById('opening-canvas');
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                // Mobile: simple fade
+                setTimeout(() => {
+                    closeOpening();
+                }, 2000);
+                return;
+            }
+            
+            // Three.js setup
+            openingScene = new THREE.Scene();
+            openingCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            openingRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+            openingRenderer.setSize(window.innerWidth, window.innerHeight);
+            openingCamera.position.z = 5;
+            
+            // Sphere with metallic material
+            const geometry = new THREE.SphereGeometry(1.5, 64, 64);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x00bfff,
+                metalness: 0.9,
+                roughness: 0.1,
+                wireframe: false
+            });
+            openingSphere = new THREE.Mesh(geometry, material);
+            openingScene.add(openingSphere);
+            
+            // Lights
+            const pointLight = new THREE.PointLight(0x00bfff, 2, 100);
+            pointLight.position.set(5, 5, 5);
+            openingScene.add(pointLight);
+            
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
+            openingScene.add(ambientLight);
+            
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 500;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.02,
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.8
+            });
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            openingScene.add(particlesMesh);
+            
+            // Animation
+            function animateOpening() {
+                if (!openingRenderer) return;
+                requestAnimationFrame(animateOpening);
+                
+                openingSphere.rotation.x += 0.005;
+                openingSphere.rotation.y += 0.01;
+                particlesMesh.rotation.y += 0.001;
+                
+                openingRenderer.render(openingScene, openingCamera);
+            }
+            animateOpening();
+            
+            // Auto close after 3 seconds
+            setTimeout(() => {
+                closeOpening();
+            }, 3000);
+        }
+        
+
+        
+        // PARTICLES BACKGROUND
+        function initParticlesBackground() {
+            const canvas = document.getElementById('particles-bg');
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) return; // Skip on mobile
+            
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.z = 5;
+            
+            // Particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 300;
+            const posArray = new Float32Array(particlesCount * 3);
+            for(let i = 0; i < particlesCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 10;
+            }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.015,
+                color: 0x00bfff,
+                transparent: true,
+                opacity: 0.6
+            });
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+            
+            // Mouse interaction
+            let mouseX = 0;
+            let mouseY = 0;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+            
+            // Animation
+            function animate() {
+                requestAnimationFrame(animate);
+                particlesMesh.rotation.y += 0.001;
+                particlesMesh.rotation.x = mouseY * 0.1;
+                particlesMesh.rotation.y += mouseX * 0.001;
+                renderer.render(scene, camera);
+            }
+            animate();
+            
+            // Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+        
+        // AUDIO
+        function playAmbientSound() {
+            // Note: You need to add an ambient.mp3 file
+            // For now, we'll skip actual audio playback
+            console.log('Ambient sound would play here');
+        }
+        
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const icon = document.getElementById('audio-icon');
+            
+            if (audioEnabled) {
+                icon.className = 'fas fa-volume-up';
+                playAmbientSound();
+            } else {
+                icon.className = 'fas fa-volume-mute';
+                // Stop sound
+            }
+        }
+        
+        
+
+
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Fade in animation on scroll
+            const user = getCurrentUser();
+            if (user) {
+                // Atualizar botões do header
+                const ctaDiv = document.querySelector('.cta');
+                if (ctaDiv) {
+                    ctaDiv.innerHTML = `
+                        <div onclick="window.location.href='profile.html'" style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), var(--brand-2)); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
+                                ${user.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <span style="font-weight: 600; font-size: 13px;">${user.name}</span>
+                                <span style="font-size: 11px; color: var(--muted);">${user.email}</span>
+                            </div>
+                        </div>
+                        <button class="btn" onclick="logout()" style="margin-left: 8px;">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </button>
+                    `;
+                }
+            }
+        
+
+        // Mobile menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('active');
+        }
+
+        function closeMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.remove('active');
+        }
+
+        // Smooth scroll
+        function scrollToSection(sectionId) {
+            document.getElementById(sectionId).scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // FAQ toggle
+        function toggleFaq(element) {
+            element.classList.toggle('active');
+        }
+
+        // Main functions
+        function openEditor() {
+            const user = getCurrentUser();
+            if (user) {
+                // Add loading state
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Carregando...';
+                btn.disabled = true;
+
+                setTimeout(() => {
+                    window.location.href = 'nexthire-editor.html';
+                }, 800);
+            } else {
+                if (confirm('Você precisa estar logado para criar um currículo. Deseja fazer login agora?')) {
+                    window.location.href = 'login.html';
+                }
+            }
+        }
+
+        function selectTemplate(template) {
+            // Verificar se está logado
+            const user = getCurrentUser();
+            if (!user) {
+                if (confirm('Você precisa estar logado para criar um currículo. Deseja fazer login agora?')) {
+                    // Salvar template selecionado para usar após login
+                    localStorage.setItem('selectedTemplate', template);
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+
+            // Show template selection feedback
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.style.transform = 'scale(0.95)';
+                card.style.opacity = '0.7';
+            });
+
+            event.currentTarget.style.transform = 'scale(1.05)';
+            event.currentTarget.style.opacity = '1';
+            event.currentTarget.style.borderColor = 'var(--brand)';
+
+            // Salvar template selecionado
+            localStorage.setItem('selectedTemplate', template);
+
+            setTimeout(() => {
+                templateCards.forEach(card => {
+                    card.style.transform = '';
+                    card.style.opacity = '';
+                    card.style.borderColor = '';
+                });
+                // Redirecionar para o editor
+                window.location.href = 'nexthire-editor.html';
+            }, 500);
+        }
+
+        function showLogin() {
+            window.location.href = 'login.html';
+        }
+
+        function showPricing() {
+            // Simulate pricing modal
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0,0,0,0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                    backdrop-filter: blur(10px);
+                `;
+
+            modal.innerHTML = `
+                    <div style="
+                        background: var(--card);
+                        border: 1px solid var(--border);
+                        border-radius: 20px;
+                        padding: 40px;
+                        max-width: 400px;
+                        width: 90%;
+                        text-align: center;
+                    ">
+                        <h3 style="margin-bottom: 20px;">🚀 Em breve!</h3>
+                        <p style="color: var(--muted); margin-bottom: 30px;">
+                            Os planos pagos estarão disponíveis em breve.
+                            Por enquanto, aproveite todos os recursos gratuitamente!
+                        </p>
+                        <button class="btn primary" onclick="this.parentElement.parentElement.remove(); openEditor();">
+                            Experimentar Grátis
+                        </button>
+                        <button class="btn" onclick="this.parentElement.parentElement.remove();" style="margin-left: 10px;">
+                            Fechar
+                        </button>
+                    </div>
+                `;
+
+            document.body.appendChild(modal);
+        }
+
+        // Add smooth scroll to all anchor links
+        document.addEventListener('DOMContentLoaded', () => {
+            const links = document.querySelectorAll('a[href^="#"]');
+            links.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                        closeMobileMenu();
+                    }
+                });
+            });
+        });
+
+        // Add loading animation to buttons
+        document.addEventListener('DOMContentLoaded', () => {
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'translateY(-2px) scale(1.02)';
+                });
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = '';
+                });
+            });
+        });
+
+        // Preload critical resources
+        window.addEventListener('load', () => {
+            // Preload editor page
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = 'editor.html';
+            document.head.appendChild(link);
+        });
+    
+    </script>
+</body>
+</html>

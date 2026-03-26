@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Zodiac Constellations - Teste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #particles {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            display: block;
+        }
+
+        .title {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: #00D9FF;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+            letter-spacing: 0.1em;
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .subtitle {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .constellation-name {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 72px;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.15);
+            text-shadow: 0 0 40px rgba(0, 217, 255, 0.3);
+            letter-spacing: 0.2em;
+            z-index: 0;
+            pointer-events: none;
+            transition: opacity 0.5s;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 40, 0.9);
+            padding: 20px 30px;
+            border-radius: 50px;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00D9FF, #00BFFF);
+            border: none;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .scene-info {
+            color: #00D9FF;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .instructions {
+            position: fixed;
+            top: 140px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            z-index: 1000;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .constellation-name {
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles"></canvas>
+    
+    <div class="title">CONSTELAÇÕES ZODÍACO</div>
+    <div class="subtitle">12 Signos Cósmicos</div>
+    
+    <div class="constellation-name" id="constellationName">ÁRIES</div>
+
+    <div class="instructions">
+        Clique para dissolver a constelação em poeira cósmica<br>
+        Mova o mouse para efeito parallax • Transição automática a cada 5 segundos
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="prevConstellation()">◀ Anterior</button>
+        <div class="scene-info" id="sceneInfo">Áries (1/12)</div>
+        <button class="btn" onclick="nextConstellation()">Próxima ▶</button>
+    </div>
+
+    <script>
+/*Galaxy Scenes Bundle - Zodiac Constellations (Updated)
+------------------------------------------------------
+ Now generates 12 "inspired" zodiac constellations made entirely of star particles.
+- Automatic loop switching every 5 seconds (configurable).
+- Transitions: cosmic dissolve (particles explode into dust and re-form into next constellation).
+- Optional ambient audio toggle.
+- Ready for Kiro: copy/paste this single file or split presets into separate files.
+
+Usage (HTML):
+<canvas id="particles" style="position:fixed;inset:0;z-index:-1;display:block"></canvas>
+<script src="galaxy_scenes_bundle.js"></script>
+<script>
+GalaxyScenes.init({ autoSwitch: true, switchInterval: 5000 });
+</script>
+*/
+
+(function () {
+'use strict';
+
+const TAU = Math.PI * 2;
+const rand = (a=0,b=1)=>Math.random()*(b-a)+a;
+const lerp = (a,b,t)=>a+(b-a)*t;
+
+// Canvas manager
+class CanvasManager{
+constructor(c){
+this.canvas=c;
+this.ctx=c.getContext('2d');
+this.dpr=Math.max(window.devicePixelRatio||1,1);
+this.resize();
+window.addEventListener('resize',()=>this.resize())
+}
+resize(){
+const w=window.innerWidth,h=window.innerHeight;
+this.canvas.width=Math.round(w*this.dpr);
+this.canvas.height=Math.round(h*this.dpr);
+this.canvas.style.width=w+'px';
+this.canvas.style.height=h+'px';
+this.ctx.setTransform(this.dpr,0,0,this.dpr,0,0);
+this.w=w;
+this.h=h
+}
+clear(){
+this.ctx.clearRect(0,0,this.w,this.h)
+}
+}
+
+// Particle
+class Particle{
+constructor(x,y,r,color){
+this.x=x;
+this.y=y;
+this.tx=x;
+this.ty=y;
+this.vx=rand(-0.2,0.2);
+this.vy=rand(-0.2,0.2);
+this.r=r;
+this.baseR=r;
+this.color=color;
+this.alpha=1;
+this.phase=rand(0,TAU);
+this.pulse=rand(0.002,0.01);
+this.state='idle';
+this.age=0
+}
+step(dt){
+this.phase+=this.pulse*dt;
+this.r=this.baseR*(1+Math.sin(this.phase)*0.12);
+if(this.state==='toTarget'){
+const dx=this.tx-this.x,dy=this.ty-this.y;
+this.vx+=dx*0.02*dt;
+this.vy+=dy*0.02*dt;
+this.vx*=0.92;
+this.vy*=0.92;
+this.x+=this.vx*dt;
+this.y+=this.vy*dt;
+if(Math.hypot(dx,dy)<0.6){
+this.x=this.tx;
+this.y=this.ty;
+this.state='idle'
+}
+}else if(this.state==='exploding'){
+this.vx*=0.985;
+this.vy*=0.985;
+this.x+=this.vx*dt;
+this.y+=this.vy*dt;
+this.alpha*=0.997;
+if(this.alpha<0.02){
+this.alpha=0;
+this.state='dead'
+}
+}else{
+this.x+=this.vx*dt;
+this.y+=this.vy*dt
+}
+this.age+=dt
+}
+draw(ctx){
+if(this.alpha<=0)return;
+ctx.beginPath();
+ctx.arc(this.x,this.y,Math.max(0.2,this.r),0,TAU);
+ctx.closePath();
+ctx.fillStyle=`rgba(${this.color.r},${this.color.g},${this.color.b},${this.alpha})`;
+ctx.fill()
+}
+}
+
+// helper colors
+function hexToRgb(hex){
+const m=hex.replace('#','');
+return {
+r:parseInt(m.substring(0,2),16),
+g:parseInt(m.substring(2,4),16),
+b:parseInt(m.substring(4,6),16)
+}
+}
+
+// Inspired constellation point sets (normalized 0..1 coordinates) - 12 zodiac-like shapes
+const constellations = [
+{name:'Áries', points:[[0.45,0.35],[0.52,0.32],[0.56,0.4],[0.60,0.48],[0.52,0.5]]},
+{name:'Touro', points:[[0.35,0.45],[0.42,0.4],[0.48,0.42],[0.55,0.46],[0.48,0.54],[0.38,0.52]]},
+{name:'Gêmeos', points:[[0.30,0.3],[0.30,0.5],[0.30,0.7],[0.50,0.3],[0.50,0.5],[0.50,0.7]]},
+{name:'Câncer', points:[[0.5,0.25],[0.57,0.33],[0.63,0.42],[0.58,0.55],[0.47,0.6]]},
+{name:'Leão', points:[[0.35,0.35],[0.45,0.3],[0.55,0.34],[0.62,0.42],[0.53,0.5]]},
+{name:'Virgem', points:[[0.25,0.4],[0.33,0.35],[0.42,0.38],[0.5,0.46],[0.58,0.55]]},
+{name:'Libra', points:[[0.35,0.5],[0.44,0.45],[0.53,0.47],[0.62,0.53]]},
+{name:'Escorpião', points:[[0.4,0.3],[0.46,0.36],[0.52,0.44],[0.58,0.54],[0.66,0.6]]},
+{name:'Sagitário', points:[[0.3,0.6],[0.38,0.54],[0.46,0.5],[0.56,0.46],[0.66,0.42]]},
+{name:'Capricórnio', points:[[0.28,0.55],[0.36,0.5],[0.44,0.48],[0.52,0.52],[0.6,0.58]]},
+{name:'Aquário', points:[[0.2,0.35],[0.3,0.4],[0.42,0.36],[0.54,0.3],[0.66,0.28]]},
+{name:'Peixes', points:[[0.4,0.28],[0.46,0.34],[0.5,0.42],[0.56,0.5]]}
+];
+
+// presets generator per constellation (colors tuned but still violet/cyan base)
+function presetForIndex(i){
+const baseGrad=['#1f0536','#003a6b'];
+const schemes=[
+['#a58aff','#7df2ff','#ffffff'],
+['#7fffd4','#aef7ff','#dffbff'],
+['#ff6ec7','#9b8aff','#ffd8f0'],
+['#cfa6ff','#9ce1ff','#ffffff']
+];
+return{
+name: constellations[i].name,
+constellation: constellations[i].points,
+particleCount: Math.max(30,constellations[i].points.length*8),
+minSize:0.5,
+maxSize:1.6,
+bigStars:0,
+speedMin:0.02,
+speedMax:0.18,
+drag:2,
+bgGradient: baseGrad,
+colorScheme: schemes[i%schemes.length],
+showLines:true,
+lineDistance:120,
+lineWidth:0.6,
+lineOpacity:0.9,
+interactRadius:130,
+interactStrength:1.4,
+clickBurst:24,
+clickBurstSpeedMin:0.6,
+clickBurstSpeedMax:2.4,
+parallax:0.003,
+glow:true,
+nebulas:[]
+}
+}
+
+// Scene implementation
+function createScene(canvasMgr,preset){
+const ctx=canvasMgr.ctx,w=()=>canvasMgr.w,h=()=>canvasMgr.h;
+const particles=[];
+let last=performance.now();
+let running=true;
+let mouse={x:-9999,y:-9999,isDown:false};
+
+// initialize particles placed initially as random dust
+for(let i=0;i<preset.particleCount;i++){
+const x=rand(0,w()),y=rand(0,h());
+const col=hexToRgb(preset.colorScheme[Math.floor(rand(0,preset.colorScheme.length))]);
+particles.push(new Particle(x,y,rand(preset.minSize,preset.maxSize),col))
+}
+
+// map particles to constellation target positions
+function setTargetsFromConstellation(){
+const pts=preset.constellation;
+const centerX=w()/2,centerY=h()/2,scale=Math.min(w(),h())*0.38; // center+scale
+// create an array of target positions that repeats points to match particle count
+const targets=[];
+for(let i=0;i<particles.length;i++){
+const pidx=i%pts.length;
+const pNorm=pts[pidx];
+const tx=centerX + (pNorm[0]-0.5)*scale*2;
+const ty=centerY + (pNorm[1]-0.5)*scale*2;
+targets.push([tx,ty])
+}
+// assign targets with jitter
+for(let i=0;i<particles.length;i++){
+particles[i].tx=targets[i][0]+rand(-6,6);
+particles[i].ty=targets[i][1]+rand(-6,6);
+particles[i].state='toTarget';
+particles[i].alpha=1
+}
+}
+
+// explode (dissolve) current constellation into dust
+function explodeToDust(){
+for(let p of particles){
+const angle=rand(0,TAU);
+const speed=rand(0.6,3.0);
+p.vx=Math.cos(angle)*speed;
+p.vy=Math.sin(angle)*speed;
+p.state='exploding';
+p.alpha=1
+}
+}
+
+function applyBackground(){
+const g=ctx.createLinearGradient(0,0,w(),h());
+g.addColorStop(0,preset.bgGradient[0]);
+g.addColorStop(1,preset.bgGradient[1]);
+ctx.fillStyle=g;
+ctx.fillRect(0,0,w(),h());
+// soft nebula (subtle)
+ctx.globalCompositeOperation='lighter';
+for(let nb of preset.nebulas||[]){
+const gx=ctx.createRadialGradient(nb.x*w(),nb.y*h(),0,nb.x*w(),nb.y*h(),Math.max(w(),h())*nb.size);
+gx.addColorStop(0,nb.colorInner);
+gx.addColorStop(0.6,nb.colorMid);
+gx.addColorStop(1,'rgba(0,0,0,0)');
+ctx.fillStyle=gx;
+ctx.fillRect(0,0,w(),h())
+}
+ctx.globalCompositeOperation='source-over'
+}
+
+function drawConnectingLines(){
+if(!preset.showLines)return;
+ctx.save();
+ctx.lineWidth=preset.lineWidth;
+for(let i=0;i<preset.constellation.length;i++){
+const a=preset.constellation[i];
+const ax=w()/2 + (a[0]-0.5)*Math.min(w(),h())*0.38*2;
+const ay=h()/2 + (a[1]-0.5)*Math.min(w(),h())*0.38*2;
+for(let j=i+1;j<preset.constellation.length;j++){
+const b=preset.constellation[j];
+const bx=w()/2 + (b[0]-0.5)*Math.min(w(),h())*0.38*2;
+const by=h()/2 + (b[1]-0.5)*Math.min(w(),h())*0.38*2;
+const dist=Math.hypot(ax-bx,ay-by);
+if(dist<preset.lineDistance){
+const alpha=(1-dist/preset.lineDistance)*preset.lineOpacity;
+ctx.strokeStyle=`rgba(200,220,255,${alpha*0.7})`;
+ctx.beginPath();
+ctx.moveTo(ax,ay);
+ctx.lineTo(bx,by);
+ctx.stroke()
+}
+}
+}
+ctx.restore()
+}
+
+function update(dt){
+for(let p of particles){
+p.step(dt); 
+// wrap
+if(p.x<-60) p.x=w()+60;
+if(p.x>w()+60)p.x=-60;
+if(p.y<-60)p.y=h()+60;
+if(p.y>h()+60)p.y=-60
+}
+}
+
+function render(now){
+if(!running)return;
+const dt=Math.min(60,now-last)/16.6667;
+last=now;
+canvasMgr.clear();
+applyBackground();
+ctx.save();
+const px=(mouse.x-w()/2)*(preset.parallax||0);
+const py=(mouse.y-h()/2)*(preset.parallax||0);
+ctx.translate(px,py);
+// draw particles
+for(let p of particles){
+if(p.alpha>0)p.draw(ctx)
+}
+ctx.restore();
+// draw constellation connecting lines over (so lines connect true star positions)
+drawConnectingLines();
+update(dt);
+requestAnimationFrame(render)
+}
+
+// events
+function onMove(e){
+const rect=canvasMgr.canvas.getBoundingClientRect();
+const x=(e.clientX!==undefined?e.clientX:(e.touches&&e.touches[0]&&e.touches[0].clientX))-rect.left;
+const y=(e.clientY!==undefined?e.clientY:(e.touches&&e.touches[0]&&e.touches[0].clientY))-rect.top;
+mouse.x=x;
+mouse.y=y
+}
+function onLeave(){
+mouse.x=-9999;
+mouse.y=-9999
+}
+function onDown(){
+mouse.isDown=true;
+explodeToDust();
+}
+function onUp(){
+mouse.isDown=false
+}
+
+function start(){
+canvasMgr.canvas.addEventListener('mousemove',onMove);
+canvasMgr.canvas.addEventListener('touchmove',onMove);
+canvasMgr.canvas.addEventListener('mouseleave',onLeave);
+canvasMgr.canvas.addEventListener('touchend',onLeave);
+canvasMgr.canvas.addEventListener('mousedown',onDown);
+canvasMgr.canvas.addEventListener('touchstart',onDown);
+canvasMgr.canvas.addEventListener('mouseup',onUp);
+requestAnimationFrame(render);
+setTargetsFromConstellation();
+}
+
+function stop(){
+running=false;
+canvasMgr.canvas.removeEventListener('mousemove',onMove);
+canvasMgr.canvas.removeEventListener('touchmove',onMove);
+canvasMgr.canvas.removeEventListener('mouseleave',onLeave);
+canvasMgr.canvas.removeEventListener('touchend',onLeave);
+canvasMgr.canvas.removeEventListener('mousedown',onDown);
+canvasMgr.canvas.removeEventListener('touchstart',onDown);
+canvasMgr.canvas.removeEventListener('mouseup',onUp)
+}
+
+// expose helper to re-form into next constellation
+return{
+start,
+stop,
+particles,
+preset,
+explodeToDust,
+setTargetsFromConstellation
+}
+}
+
+// Loader with auto-switch every 5s default
+class GalaxyLoader{
+constructor(opts={}){
+this.canvas=opts.canvas||document.getElementById('particles')||(()=>{
+const c=document.createElement('canvas');
+c.id='particles';
+document.body.appendChild(c);
+return c
+})();
+this.canvas.style.position=this.canvas.style.position||'fixed';
+this.canvas.style.inset=this.canvas.style.inset||'0';
+this.canvas.style.zIndex=this.canvas.style.zIndex||'-1';
+this.canvas.style.display='block';
+this.canvas.setAttribute('aria-hidden','true');
+this.canvasMgr=new CanvasManager(this.canvas);
+this.sceneIndex=opts.startScene||0;
+this.autoSwitch=opts.autoSwitch!==undefined?opts.autoSwitch:true;
+this.switchInterval=opts.switchInterval||5000;
+this._timer=null;
+this.current=null;
+this._isRunning=false
+}
+
+start(){
+if(this._isRunning)return;
+this._isRunning=true;
+this.loadScene(this.sceneIndex);
+if(this.autoSwitch)this._startAuto()
+}
+
+stop(){
+if(!this._isRunning)return;
+this._isRunning=false;
+if(this.current)this.current.stop();
+this.current=null;
+this._stopAuto()
+}
+
+_startAuto(){
+this._timer=setInterval(()=>this.next(),this.switchInterval)
+}
+
+_stopAuto(){
+if(this._timer){
+clearInterval(this._timer);
+this._timer=null
+}
+}
+
+next(){
+const old=this.current; 
+if(!old)return; 
+// explode current into dust then after delay form next
+old.explodeToDust(); 
+// wait then swap
+const nextIdx=(this.sceneIndex+1)%constellations.length;
+setTimeout(()=>{
+if(old)old.stop();
+this.sceneIndex=nextIdx;
+const preset=presetForIndex(nextIdx);
+this.current=createScene(this.canvasMgr,preset);
+this.current.start();
+updateUI(nextIdx);
+},900) 
+}
+
+prev(){
+const old=this.current;
+if(!old)return;
+old.explodeToDust();
+const nextIdx=(this.sceneIndex-1+constellations.length)%constellations.length;
+setTimeout(()=>{
+if(old)old.stop();
+this.sceneIndex=nextIdx;
+const preset=presetForIndex(nextIdx);
+this.current=createScene(this.canvasMgr,preset);
+this.current.start();
+updateUI(nextIdx);
+},900)
+}
+
+loadScene(index){
+if(this.current){
+this.current.stop()
+}
+this.sceneIndex=index;
+const preset=presetForIndex(index);
+this.current=createScene(this.canvasMgr,preset);
+this.current.start();
+updateUI(index);
+}
+
+getPresets(){
+return constellations.map((c,i)=>({i,name:c.name}))
+}
+}
+
+// expose
+const LoaderSingleton=(function(){
+let loader=null;
+return{
+init(opts={}){
+if(!loader)loader=new GalaxyLoader(opts);
+if(opts.autoStart!==false)loader.start();
+return loader
+},
+get(){
+return loader
+}
+}
+})();
+
+window.GalaxyScenes={
+init(config={}){
+return LoaderSingleton.init(config)
+},
+getLoader(){
+return LoaderSingleton.get()
+},
+constellations
+}
+
+})();
+
+// UI Update
+function updateUI(index) {
+    const constellation = GalaxyScenes.constellations[index];
+    document.getElementById('constellationName').textContent = constellation.name.toUpperCase();
+    document.getElementById('sceneInfo').textContent = `${constellation.name} (${index + 1}/12)`;
+}
+
+// Initialize
+GalaxyScenes.init({ 
+    autoSwitch: true, 
+    switchInterval: 5000 
+});
+
+// Global controls
+window.nextConstellation = () => GalaxyScenes.getLoader().next();
+window.prevConstellation = () => GalaxyScenes.getLoader().prev();
+
+// Initial UI
+updateUI(0);
+    </script>
+</body>
+</html>

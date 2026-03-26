@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constelações Zodíaco</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(20, 20, 40, 0.9);
+            padding: 20px 30px;
+            border-radius: 50px;
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00D9FF, #00BFFF);
+            border: none;
+            color: #000;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .info {
+            color: #00D9FF;
+            font-size: 14px;
+            font-weight: 600;
+            min-width: 150px;
+            text-align: center;
+        }
+
+        .title {
+            position: fixed;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: 900;
+            color: #00D9FF;
+            text-shadow: 0 0 30px rgba(0, 217, 255, 0.8);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="title">CONSTELAÇÕES ZODÍACO</div>
+
+    <div class="ui">
+        <button onclick="app.prev()">◀ Anterior</button>
+        <div class="info" id="info">Áries (1/12)</div>
+        <button onclick="app.next()">Próxima ▶</button>
+    </div>
+
+    <script>
+        const app = {
+            canvas: null,
+            ctx: null,
+            particles: [],
+            currentIndex: 0,
+            
+            constellations: [
+                { name: 'Áries', points: [[0.45,0.35],[0.52,0.32],[0.56,0.4],[0.60,0.48],[0.52,0.5]] },
+                { name: 'Touro', points: [[0.35,0.45],[0.42,0.4],[0.48,0.42],[0.55,0.46],[0.48,0.54],[0.38,0.52]] },
+                { name: 'Gêmeos', points: [[0.30,0.3],[0.30,0.5],[0.30,0.7],[0.50,0.3],[0.50,0.5],[0.50,0.7]] },
+                { name: 'Câncer', points: [[0.5,0.25],[0.57,0.33],[0.63,0.42],[0.58,0.55],[0.47,0.6]] },
+                { name: 'Leão', points: [[0.35,0.35],[0.45,0.3],[0.55,0.34],[0.62,0.42],[0.53,0.5]] },
+                { name: 'Virgem', points: [[0.25,0.4],[0.33,0.35],[0.42,0.38],[0.5,0.46],[0.58,0.55]] },
+                { name: 'Libra', points: [[0.35,0.5],[0.44,0.45],[0.53,0.47],[0.62,0.53]] },
+                { name: 'Escorpião', points: [[0.4,0.3],[0.46,0.36],[0.52,0.44],[0.58,0.54],[0.66,0.6]] },
+                { name: 'Sagitário', points: [[0.3,0.6],[0.38,0.54],[0.46,0.5],[0.56,0.46],[0.66,0.42]] },
+                { name: 'Capricórnio', points: [[0.28,0.55],[0.36,0.5],[0.44,0.48],[0.52,0.52],[0.6,0.58]] },
+                { name: 'Aquário', points: [[0.2,0.35],[0.3,0.4],[0.42,0.36],[0.54,0.3],[0.66,0.28]] },
+                { name: 'Peixes', points: [[0.4,0.28],[0.46,0.34],[0.5,0.42],[0.56,0.5]] }
+            ],
+
+            init() {
+                this.canvas = document.getElementById('canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                
+                this.canvas.addEventListener('click', () => this.explode());
+                
+                this.createParticles();
+                this.animate();
+                
+                // Auto switch every 5 seconds
+                setInterval(() => this.next(), 5000);
+            },
+
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+            },
+
+            createParticles() {
+                this.particles = [];
+                const count = 200;
+                
+                for (let i = 0; i < count; i++) {
+                    this.particles.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        tx: 0,
+                        ty: 0,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        size: Math.random() * 2 + 0.5,
+                        opacity: Math.random() * 0.5 + 0.5,
+                        phase: Math.random() * Math.PI * 2,
+                        state: 'idle'
+                    });
+                }
+                
+                this.setTargets();
+            },
+
+            setTargets() {
+                const constellation = this.constellations[this.currentIndex];
+                const points = constellation.points;
+                const cx = this.canvas.width / 2;
+                const cy = this.canvas.height / 2;
+                const scale = Math.min(this.canvas.width, this.canvas.height) * 0.35;
+
+                this.particles.forEach((p, i) => {
+                    const pointIndex = i % points.length;
+                    const point = points[pointIndex];
+                    
+                    p.tx = cx + (point[0] - 0.5) * scale * 2 + (Math.random() - 0.5) * 10;
+                    p.ty = cy + (point[1] - 0.5) * scale * 2 + (Math.random() - 0.5) * 10;
+                    p.state = 'moving';
+                });
+
+                document.getElementById('info').textContent = 
+                    `${constellation.name} (${this.currentIndex + 1}/12)`;
+            },
+
+            explode() {
+                this.particles.forEach(p => {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = Math.random() * 3 + 1;
+                    p.vx = Math.cos(angle) * speed;
+                    p.vy = Math.sin(angle) * speed;
+                    p.state = 'exploding';
+                });
+
+                setTimeout(() => {
+                    this.particles.forEach(p => {
+                        p.state = 'moving';
+                    });
+                }, 1000);
+            },
+
+            next() {
+                this.explode();
+                setTimeout(() => {
+                    this.currentIndex = (this.currentIndex + 1) % this.constellations.length;
+                    this.setTargets();
+                }, 1000);
+            },
+
+            prev() {
+                this.explode();
+                setTimeout(() => {
+                    this.currentIndex = (this.currentIndex - 1 + this.constellations.length) % this.constellations.length;
+                    this.setTargets();
+                }, 1000);
+            },
+
+            update() {
+                this.particles.forEach(p => {
+                    // Pulse effect
+                    p.phase += 0.02;
+                    const pulse = Math.sin(p.phase) * 0.3 + 1;
+
+                    if (p.state === 'moving') {
+                        const dx = p.tx - p.x;
+                        const dy = p.ty - p.y;
+                        p.vx += dx * 0.01;
+                        p.vy += dy * 0.01;
+                        p.vx *= 0.95;
+                        p.vy *= 0.95;
+                    } else if (p.state === 'exploding') {
+                        p.vx *= 0.98;
+                        p.vy *= 0.98;
+                    }
+
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    // Wrap around
+                    if (p.x < -50) p.x = this.canvas.width + 50;
+                    if (p.x > this.canvas.width + 50) p.x = -50;
+                    if (p.y < -50) p.y = this.canvas.height + 50;
+                    if (p.y > this.canvas.height + 50) p.y = -50;
+                });
+            },
+
+            draw() {
+                // Background gradient
+                const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                gradient.addColorStop(0, '#1f0536');
+                gradient.addColorStop(1, '#003a6b');
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Draw constellation lines
+                const constellation = this.constellations[this.currentIndex];
+                const points = constellation.points;
+                const cx = this.canvas.width / 2;
+                const cy = this.canvas.height / 2;
+                const scale = Math.min(this.canvas.width, this.canvas.height) * 0.35;
+
+                this.ctx.strokeStyle = 'rgba(0, 217, 255, 0.3)';
+                this.ctx.lineWidth = 1;
+                this.ctx.beginPath();
+                
+                points.forEach((point, i) => {
+                    const x = cx + (point[0] - 0.5) * scale * 2;
+                    const y = cy + (point[1] - 0.5) * scale * 2;
+                    
+                    if (i === 0) {
+                        this.ctx.moveTo(x, y);
+                    } else {
+                        this.ctx.lineTo(x, y);
+                    }
+                });
+                
+                this.ctx.stroke();
+
+                // Draw particles
+                this.particles.forEach(p => {
+                    const pulse = Math.sin(p.phase) * 0.3 + 1;
+                    
+                    // Glow
+                    const gradient = this.ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+                    gradient.addColorStop(0, `rgba(165, 138, 255, ${p.opacity})`);
+                    gradient.addColorStop(0.5, `rgba(125, 242, 255, ${p.opacity * 0.5})`);
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    
+                    this.ctx.fillStyle = gradient;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size * 4 * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+
+                    // Core
+                    this.ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size * pulse, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+            },
+
+            animate() {
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.animate());
+            }
+        };
+
+        // Start
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>

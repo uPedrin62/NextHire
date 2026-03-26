@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextHire - Create Your Resume</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #0A1628 100%);
+            min-height: 100vh;
+            color: #f9fafb;
+        }
+
+        .wizard-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .wizard-header {
+            background: rgba(10, 22, 40, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .logo {
+            color: #00D9FF;
+            font-size: 28px;
+            font-weight: 900;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .wizard-content {
+            margin-top: 100px;
+            background: rgba(10, 22, 40, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 60px 40px;
+            box-shadow: 0 10px 40px rgba(0, 217, 255, 0.2);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 40px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background: #00D9FF;
+            width: 40px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 16px;
+            color: #f9fafb;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #C0C0C0;
+            margin-bottom: 50px;
+            font-size: 16px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .option-card {
+            border: 2px solid rgba(0, 217, 255, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            background: rgba(10, 22, 40, 0.5);
+        }
+
+        .option-card:hover {
+            border-color: #00D9FF;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 217, 255, 0.3);
+        }
+
+        .option-card.selected {
+            border-color: #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .option-card h3 {
+            font-size: 20px;
+            margin-bottom: 12px;
+            color: #f9fafb;
+        }
+
+        .option-card p {
+            color: #C0C0C0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .option-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-back {
+            background: transparent;
+            color: #00D9FF;
+            border: 2px solid #00D9FF;
+        }
+
+        .btn-back:hover {
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #00D9FF, #00B8D4);
+            color: white;
+            padding: 14px 48px;
+            border: none;
+        }
+
+        .btn-next:hover {
+            background: linear-gradient(135deg, #00B8D4, #0099B8);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 217, 255, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .checkbox-list {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border: 2px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(10, 22, 40, 0.5);
+        }
+
+        .checkbox-item:hover {
+            border-color: #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            margin-right: 16px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            font-size: 18px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 300px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .template-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .experience-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .experience-btn {
+            padding: 16px 32px;
+            border: 2px solid rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(10, 22, 40, 0.5);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #f9fafb;
+        }
+
+        .experience-btn:hover {
+            border-color: #00D9FF;
+            background: rgba(0, 217, 255, 0.1);
+        }
+
+        .experience-btn.selected {
+            border-color: #00D9FF;
+            background: #00D9FF;
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.5);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #C0C0C0;
+        }
+
+        .close-btn:hover {
+            color: #00D9FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="wizard-header">
+        <div class="logo">NextHire</div>
+    </div>
+
+    <div class="wizard-container">
+        <div class="wizard-content">
+            <button class="close-btn" onclick="window.location.href='index.html'">✕</button>
+            
+            <div class="step-indicator">
+                <div class="step-dot active"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+                <div class="step-dot"></div>
+            </div>
+
+            <!-- Step 1: Upload or Start -->
+            <div class="step active" id="step1">
+                <h1>Você está enviando um currículo existente?</h1>
+                <p class="subtitle">Apenas revise, edite e atualize com novas informações</p>
+                
+                <div class="options-grid">
+                    <div class="option-card" onclick="selectOption(this, 'upload')">
+                        <div class="option-icon">📤</div>
+                        <h3>Sim, fazer upload do meu currículo</h3>
+                        <p>Daremos orientação especializada para preencher suas informações e melhorar seu currículo</p>
+                    </div>
+                    
+                    <div class="option-card selected" onclick="selectOption(this, 'scratch')">
+                        <div class="option-icon">✏️</div>
+                        <h3>Não, começar do zero</h3>
+                        <p>Vamos guiá-lo por todo o processo para que suas habilidades brilhem</p>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-back" onclick="window.location.href='index.html'">← Voltar</button>
+                    <button class="btn btn-next" onclick="nextStep()">Próximo</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Occupation -->
+            <div class="step" id="step2">
+                <h1>Qual é a sua ocupação?</h1>
+                <p class="subtitle">Pule se necessário—usaremos suas respostas anteriores para recomendar templates.</p>
+                
+                <div class="checkbox-list">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="occ1">
+                        <label for="occ1">Gestão & Executivo</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="occ2">
+                        <label for="occ2">Escritório & Suporte Administrativo</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="occ3">
+                        <label for="occ3">Negócios & Finanças</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="occ4">
+                        <label for="occ4">Varejo & Vendas</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="occ5">
+                        <label for="occ5">Saúde & Medicina</label>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-back" onclick="prevStep()">← Voltar</button>
+                    <button class="btn btn-next" onclick="nextStep()">Ver Templates</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Style -->
+            <div class="step" id="step3">
+                <h1>Qual estilo você prefere?</h1>
+                <p class="subtitle">Escolha um estilo de currículo baseado na sua área, você pode escolher vários estilos também.</p>
+                
+                <div class="options-grid">
+                    <div class="option-card" onclick="selectOption(this, 'simple')">
+                        <div class="template-preview">
+                            <div style="width: 80%; height: 90%; background: white; border: 1px solid #ddd; padding: 20px;">
+                                <div style="height: 20px; background: #333; width: 60%; margin-bottom: 10px;"></div>
+                                <div style="height: 10px; background: #999; width: 40%; margin-bottom: 20px;"></div>
+                                <div style="height: 8px; background: #ddd; width: 100%; margin-bottom: 5px;"></div>
+                                <div style="height: 8px; background: #ddd; width: 90%;"></div>
+                            </div>
+                        </div>
+                        <h3>Simples & Clássico</h3>
+                        <p>Para cargos corporativos padrão</p>
+                    </div>
+                    
+                    <div class="option-card selected" onclick="selectOption(this, 'modern')">
+                        <div class="template-preview">
+                            <div style="width: 80%; height: 90%; background: linear-gradient(to right, #0d2847 30%, white 30%); padding: 20px;">
+                                <div style="height: 20px; background: white; width: 40%; margin-bottom: 10px;"></div>
+                            </div>
+                        </div>
+                        <h3>Moderno & Sutil</h3>
+                        <p>Para tech, startups ou cargos inovadores</p>
+                    </div>
+                    
+                    <div class="option-card" onclick="selectOption(this, 'bold')">
+                        <div class="template-preview">
+                            <div style="width: 80%; height: 90%; background: white; border: 4px solid #00bfa5; padding: 20px;">
+                                <div style="width: 60px; height: 60px; background: #ff4081; border-radius: 50%; margin: 0 auto 10px;"></div>
+                            </div>
+                        </div>
+                        <h3>Ousado & Marcante</h3>
+                        <p>Para design, mídia ou cargos criativos</p>
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-back" onclick="prevStep()">← Voltar</button>
+                    <button class="btn btn-next" onclick="nextStep()">Próximo</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Experience Level -->
+            <div class="step" id="step4">
+                <h1>Há quanto tempo você trabalha?</h1>
+                <p class="subtitle">Encontraremos os melhores templates para o seu nível de experiência.</p>
+                
+                <div class="experience-buttons">
+                    <button class="experience-btn" onclick="selectExperience(this, 'none')">Sem Experiência</button>
+                    <button class="experience-btn" onclick="selectExperience(this, 'less3')">Menos de 3 Anos</button>
+                    <button class="experience-btn selected" onclick="selectExperience(this, '3-5')">3-5 Anos</button>
+                    <button class="experience-btn" onclick="selectExperience(this, '5-10')">5-10 Anos</button>
+                    <button class="experience-btn" onclick="selectExperience(this, '10+')">10+ Anos</button>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-back" onclick="prevStep()">← Voltar</button>
+                    <button class="btn btn-next" onclick="goToEditor()">Começar a Criar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+        let wizardData = {
+            startType: 'scratch',
+            occupation: [],
+            style: 'modern',
+            experience: '3-5'
+        };
+
+        function selectOption(element, value) {
+            // Remove selected from siblings
+            const siblings = element.parentElement.children;
+            for (let sibling of siblings) {
+                sibling.classList.remove('selected');
+            }
+            element.classList.add('selected');
+            
+            if (currentStep === 1) wizardData.startType = value;
+            if (currentStep === 3) wizardData.style = value;
+        }
+
+        function selectExperience(element, value) {
+            const siblings = element.parentElement.children;
+            for (let sibling of siblings) {
+                sibling.classList.remove('selected');
+            }
+            element.classList.add('selected');
+            wizardData.experience = value;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepIndicator();
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateStepIndicator();
+            }
+        }
+
+        function updateStepIndicator() {
+            const dots = document.querySelectorAll('.step-dot');
+            dots.forEach((dot, index) => {
+                if (index < currentStep) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function goToEditor() {
+            // Save wizard data to localStorage
+            localStorage.setItem('wizardData', JSON.stringify(wizardData));
+            // Redirect to editor
+            window.location.href = 'nexthire-editor.html';
+        }
+    </script>
+</body>
+</html>

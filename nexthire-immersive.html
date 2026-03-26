@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextHire — Inteligência que constrói o teu futuro profissional</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --neon-blue: #00bfff;
+            --white: #ffffff;
+            --gray-metal: #1a1a1a;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-dark);
+            color: var(--white);
+            overflow-x: hidden;
+            cursor: none;
+        }
+        
+        /* Custom Cursor */
+        #cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.2s, opacity 0.3s;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+        
+        #cursor.hover {
+            transform: scale(2);
+            background: rgba(0, 191, 255, 0.2);
+        }
+        
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: var(--bg-dark);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        #canvas-container {
+            width: 100%;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #intro-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+        }
+        
+        #intro-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-shadow: 0 0 30px var(--neon-blue);
+            margin-bottom: 1rem;
+        }
+        
+        #intro-text p {
+            font-size: 1.2rem;
+            color: var(--white);
+            opacity: 0.8;
+        }
+        
+        /* Main Content */
+        #main-content {
+            opacity: 0;
+            display: none;
+        }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem 4rem;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        nav a {
+            color: var(--white);
+            text-decoration: none;
+            margin-left: 2rem;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--neon-blue);
+        }
+        
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-content {
+            z-index: 10;
+            max-width: 900px;
+            padding: 2rem;
+        }
+        
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--white), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            margin-bottom: 3rem;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: var(--neon-blue);
+            color: var(--bg-dark);
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+        
+        .cta-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 50px var(--neon-blue);
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 8rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 4rem;
+        }
+        
+        .feature-card {
+            background: var(--gray-metal);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            transition: all 0.5s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--neon-blue);
+            box-shadow: 0 20px 60px rgba(0, 191, 255, 0.3);
+        }
+        
+        .feature-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card p {
+            opacity: 0.8;
+            line-height: 1.8;
+        }
+        
+        /* Footer */
+        footer {
+            background: var(--bg-darker);
+            padding: 3rem;
+            text-align: center;
+            border-top: 1px solid rgba(0, 191, 255, 0.1);
+        }
+        
+        footer p {
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+        
+        footer a {
+            color: var(--neon-blue);
+            text-decoration: none;
+            margin: 0 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        footer a:hover {
+            opacity: 0.7;
+        }
+        
+        /* Particles Background */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            #intro-text h1 {
+                font-size: 2rem;
+            }
+            
+            header {
+                padding: 1rem 2rem;
+            }
+            
+            .features {
+                padding: 4rem 2rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div id="cursor"></div>
+    
+    <!-- Loading Screen with 3D -->
+    <div id="loading-screen">
+        <div id="canvas-container"></div>
+        <div id="intro-text">
+            <h1>NEXTHIRE</h1>
+            <p>Criação Inteligente de Currículos com IA</p>
+        </div>
+    </div>
+    
+    <!-- Particles Background -->
+    <canvas id="particles"></canvas>
+    
+    <!-- Main Content -->
+    <div id="main-content">
+        <!-- Header -->
+        <header>
+            <div class="logo">NEXTHIRE</div>
+            <nav>
+                <a href="#features">Funcionalidades</a>
+                <a href="nexthire-editor.html">Editor</a>
+                <a href="login-immersive.html">Login</a>
+                <a href="register-immersive.html">Cadastrar</a>
+            </nav>
+        </header>
+        
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Inteligência que constrói o teu futuro profissional</h1>
+                <p>Cria currículos profissionais com o poder da IA. Design moderno, otimização automática e resultados garantidos.</p>
+                <a href="nexthire-editor.html" class="cta-button">Começar Agora</a>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="features" id="features">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>🤖 IA Criativa</h3>
+                    <p>Assistente inteligente que sugere textos, otimiza descrições e adapta o teu CV para cada vaga.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>🎨 Design Profissional</h3>
+                    <p>11 templates modernos e elegantes. Escolhe o estilo que representa a tua personalidade profissional.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⚡ Otimização Automática</h3>
+                    <p>Análise completa do teu CV com sugestões de melhoria e palavras-chave estratégicas.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer>
+            <p>NextHire © 2025 — Powered by Kiro AI</p>
+            <div style="margin-top: 1rem;">
+                <a href="#">Sobre</a>
+                <a href="#">Termos</a>
+                <a href="#">Contato</a>
+            </div>
+        </footer>
+    </div>
+    
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+        
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+        
+        // Three.js 3D Scene
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x0a0a0a, 1);
+        container.appendChild(renderer.domElement);
+        
+        // Create 3D Object (Diamond/Crystal)
+        const geometry = new THREE.OctahedronGeometry(2, 0);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0x00bfff,
+            emissive: 0x00bfff,
+            emissiveIntensity: 0.5,
+            shininess: 100,
+            specular: 0xffffff
+        });
+        const crystal = new THREE.Mesh(geometry, material);
+        scene.add(crystal);
+        
+        // Lighting
+        const pointLight = new THREE.PointLight(0x00bfff, 2, 100);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+        
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        scene.add(ambientLight);
+        
+        camera.position.z = 5;
+        
+        // Mouse interaction
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (e) => {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        });
+        
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            crystal.rotation.x += 0.005;
+            crystal.rotation.y += 0.01;
+            
+            // React to mouse
+            crystal.rotation.x += mouseY * 0.01;
+            crystal.rotation.y += mouseX * 0.01;
+            
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // Intro Animation with GSAP
+        gsap.registerPlugin(ScrollTrigger);
+        
+        const tl = gsap.timeline();
+        
+        // Show intro text
+        tl.to('#intro-text', {
+            opacity: 1,
+            duration: 1,
+            delay: 1
+        });
+        
+        // Zoom camera
+        tl.to(camera.position, {
+            z: 2,
+            duration: 2,
+            ease: 'power2.inOut'
+        });
+        
+        // Fade out loading screen
+        tl.to('#loading-screen', {
+            opacity: 0,
+            duration: 1,
+            onComplete: () => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                gsap.to('#main-content', { opacity: 1, duration: 1 });
+            }
+        });
+        
+        // Particles Background
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                size: Math.random() * 2
+            });
+        }
+        
+        function drawParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'rgba(0, 191, 255, 0.5)';
+            
+            particles.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+            });
+            
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+        
+        // Scroll Animations
+        gsap.utils.toArray('.feature-card').forEach(card => {
+            gsap.from(card, {
+                scrollTrigger: {
+                    trigger: card,
+                    start: 'top 80%',
+                    end: 'top 50%',
+                    scrub: 1
+                },
+                opacity: 0,
+                y: 100,
+                duration: 1
+            });
+        });
+        
+        // Resize handler
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testar Fluxo NextHire</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0a0a0a;
+            color: #fff;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: #00bfff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #00d9ff;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 191, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid #00bfff;
+        }
+        h2 {
+            color: #00bfff;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Testar Fluxo NextHire</h1>
+    
+    <div class="section">
+        <h2>1️⃣ Limpar Dados</h2>
+        <p>Limpe o localStorage para simular um novo usuário:</p>
+        <button class="btn" onclick="clearData()">🗑️ Limpar Dados</button>
+        <div id="clearStatus" class="status"></div>
+    </div>
+
+    <div class="section">
+        <h2>2️⃣ Testar Fluxo Completo</h2>
+        <p>Siga este caminho:</p>
+        <ol>
+            <li><a href="index.html" class="btn">🏠 1. Abrir Landing Page</a></li>
+            <li>Clique em "Começar Grátis"</li>
+            <li>Faça login ou cadastro</li>
+            <li>Escolha um template no wizard</li>
+            <li>Deve abrir o editor</li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>3️⃣ Atalhos Diretos</h2>
+        <a href="login-immersive.html" class="btn">🔑 Login</a>
+        <a href="register-immersive.html" class="btn">📋 Cadastro</a>
+        <a href="nexthire-wizard.html" class="btn">🎨 Wizard</a>
+        <a href="nexthire-editor.html" class="btn">✏️ Editor</a>
+    </div>
+
+    <div class="section">
+        <h2>4️⃣ Status Atual</h2>
+        <div id="userStatus" class="status"></div>
+    </div>
+
+    <script>
+        function clearData() {
+            localStorage.clear();
+            document.getElementById('clearStatus').innerHTML = '✅ Dados limpos! Você pode testar como novo usuário.';
+            updateStatus();
+        }
+
+        function updateStatus() {
+            const user = localStorage.getItem('procv-current-user');
+            const statusDiv = document.getElementById('userStatus');
+            
+            if (user) {
+                const userData = JSON.parse(user);
+                statusDiv.innerHTML = `
+                    <strong>👤 Usuário Logado:</strong><br>
+                    Nome: ${userData.name}<br>
+                    Email: ${userData.email}
+                `;
+            } else {
+                statusDiv.innerHTML = '<strong>❌ Nenhum usuário logado</strong>';
+            }
+        }
+
+        // Atualizar status ao carregar
+        updateStatus();
+    </script>
+</body>
+</html>

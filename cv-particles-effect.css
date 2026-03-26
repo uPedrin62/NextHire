@@ -1,0 +1,65 @@
+/* Efeito de partículas ao redor do CV */
+.cv-preview {
+    position: relative;
+}
+
+.cv-preview::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: #0a0a0a;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes cvGlow {
+    0%, 100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.02);
+    }
+}
+
+/* Partículas flutuantes ao redor do CV */
+.cv-preview::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle, rgba(0, 191, 255, 0.3) 1px, transparent 1px),
+        radial-gradient(circle, rgba(0, 191, 255, 0.2) 1px, transparent 1px);
+    background-size: 50px 50px, 80px 80px;
+    background-position: 0 0, 40px 40px;
+    pointer-events: none;
+    opacity: 0.3;
+    animation: particlesFloat 20s linear infinite;
+}
+
+@keyframes particlesFloat {
+    0% {
+        background-position: 0 0, 40px 40px;
+    }
+    100% {
+        background-position: 50px 50px, 90px 90px;
+    }
+}
+
+/* Brilho nas bordas do CV */
+.cv-preview {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+}
+
+/* Efeito hover no CV */
+.cv-preview:hover {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+    transition: box-shadow 0.3s ease;
+}

@@ -1,0 +1,4 @@
+API_KEY=123abc456xyz
+PORT=3000
+DB_USER=admin
+DB_PASS=senhaSegura

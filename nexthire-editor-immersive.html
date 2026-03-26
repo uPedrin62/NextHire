@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NextHire Editor - Cria o teu CV com IA</title>
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Poppins:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <!-- HTML2PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Immersive CSS -->
+    <link rel="stylesheet" href="nexthire-immersive.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Header Imersivo */
+        .header-immersive {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            z-index: 1000;
+        }
+
+        .logo-immersive {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #00bfff;
+            text-shadow: 0 0 20px #00bfff;
+            cursor: pointer;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-immersive {
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid rgba(0, 191, 255, 0.3);
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-immersive:hover {
+            background: rgba(0, 191, 255, 0.1);
+            border-color: #00bfff;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary-immersive {
+            background: #00bfff;
+            color: #0a0a0a;
+            border: none;
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.5);
+        }
+
+        .btn-primary-immersive:hover {
+            background: #00d9ff;
+            box-shadow: 0 0 40px rgba(0, 191, 255, 0.7);
+        }
+
+        /* Layout Principal */
+        .app-container-immersive {
+            display: flex;
+            margin-top: 70px;
+            height: calc(100vh - 70px);
+        }
+
+        /* Sidebar Imersiva */
+        .sidebar-immersive {
+            width: 400px;
+            background: #1a1a1a;
+            border-right: 1px solid rgba(0, 191, 255, 0.2);
+            overflow-y: auto;
+        }
+
+        .tab-navigation-immersive {
+            display: flex;
+            background: #0a0a0a;
+            border-bottom: 1px solid rgba(0, 191, 255, 0.2);
+        }
+
+        .tab-btn-immersive {
+            flex: 1;
+            padding: 1rem;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+            position: relative;
+        }
+
+        .tab-btn-immersive.active {
+            color: #00bfff;
+            background: rgba(0, 191, 255, 0.05);
+        }
+
+        .tab-btn-immersive.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #00bfff;
+            box-shadow: 0 0 10px #00bfff;
+        }
+
+        .tab-content-immersive {
+            display: none;
+            padding: 1.5rem;
+        }
+
+        .tab-content-immersive.active {
+            display: block;
+        }
+
+        /* Form Styles Imersivos */
+        .form-section-immersive {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-section-immersive h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: #00bfff;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group-immersive {
+            margin-bottom: 1rem;
+        }
+
+        .form-group-immersive label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #00bfff;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-control-immersive {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 191, 255, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .form-control-immersive:focus {
+            outline: none;
+            border-color: #00bfff;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
+        }
+
+        textarea.form-control-immersive {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Preview Area */
+        .preview-area-immersive {
+            flex: 1;
+            background: #f1f5f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header-immersive {
+            height: 60px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            color: #1f2937;
+        }
+
+        .preview-content-immersive {
+            flex: 1;
+            padding: 2rem;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .cv-preview-immersive {
+            background: white;
+            width: 210mm;
+            min-height: 297mm;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            color: #1f2937;
+            transform-origin: top center;
+            transition: transform 0.3s;
+        }
+
+        /* Zoom Controls */
+        .zoom-controls-immersive {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .zoom-btn-immersive {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #cbd5e1;
+            background: white;
+            color: #1f2937;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .zoom-btn-immersive:hover {
+            background: #f1f5f9;
+            border-color: #94a3b8;
+        }
+
+        /* Particles Background */
+        #particles-editor {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Custom Cursor */
+        #cursor-editor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00bfff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            transition: transform 0.2s;
+            box-shadow: 0 0 20px #00bfff;
+        }
+
+        #cursor-editor.hover {
+            transform: scale(2);
+            background: rgba(0, 191, 255, 0.2);
+        }
+
+        /* Alert Imersivo */
+        .alert-immersive {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: #00bfff;
+            color: #0a0a0a;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            z-index: 10000;
+            font-weight: 600;
+            box-shadow: 0 0 40px rgba(0, 191, 255, 0.5);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+
+        .alert-immersive.show {
+            transform: translateX(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar-immersive {
+                width: 100%;
+                height: 50vh;
+            }
+
+            .app-container-immersive {
+                flex-direction: column;
+            }
+
+            .cv-preview-immersive {
+                width: 150mm;
+                transform: scale(0.7);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div id="cursor-editor"></div>
+
+    <!-- Particles Background -->
+    <canvas id="particles-editor"></canvas>
+
+    <!-- Header -->
+    <header class="header-immersive">
+        <div class="logo-immersive" onclick="window.location.href='nexthire-immersive.html'"></div>
+        NEXTHIRE
+        </div>
+        <div class="header-actions">
+            <button class="btn-immersive" onclick="analyzeCV()">
+                <i class="fas fa-chart-line"></i> Analisar
+            </button>
+            <button class="btn-immersive" onclick="loadSavedCV()">
+                <i class="fas fa-folder-open"></i> Carregar
+            </button>
+            <button class="btn-immersive" onclick="downloadPDF()">
+                <i class="fas fa-download"></i> PDF
+            </button>
+            <button class="btn-primary-immersive" onclick="saveCV()">
+                <i class="fas fa-save"></i> Salvar
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="app-container-immersive">
+        <!-- Sidebar -->
+        <aside class="sidebar-immersive">
+            <nav class="tab-navigation-immersive">
+                <button class="tab-btn-immersive active" onclick="switchTab('editor')">
+                    <i class="fas fa-edit"></i>
+                    <span>Editor</span>
+                </button>
+                <button class="tab-btn-immersive" onclick="switchTab('templates')">
+                    <i class="fas fa-palette"></i>
+                    <span>Templates</span>
+                </button>
+                <button class="tab-btn-immersive" onclick="switchTab('ai')">
+                    <i class="fas fa-robot"></i>
+                    <span>IA</span>
+                </button>
+            </nav>
+
+            <!-- Editor Tab -->
+            <div class="tab-content-immersive active" id="tab-editor">
+                <!-- Será preenchido pelo JavaScript -->
+            </div>
+
+            <!-- Templates Tab -->
+            <div class="tab-content-immersive" id="tab-templates">
+                <!-- Será preenchido pelo JavaScript -->
+            </div>
+
+            <!-- AI Tab -->
+            <div class="tab-content-immersive" id="tab-ai">
+                <!-- Será preenchido pelo JavaScript -->
+            </div>
+        </aside>
+
+        <!-- Preview Area -->
+        <main class="preview-area-immersive">
+            <div class="preview-header-immersive">
+                <div style="font-weight: 600;">
+                    <i class="fas fa-eye"></i> Pré-visualização do CV
+                </div>
+                <div class="zoom-controls-immersive">
+                    <button class="zoom-btn-immersive" onclick="zoomOut()">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <span id="zoomLevel" style="margin: 0 0.5rem; font-weight: 500;">100%</span>
+                    <button class="zoom-btn-immersive" onclick="zoomIn()">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="preview-content-immersive">
+                <div class="cv-preview-immersive" id="cvPreview">
+                    <!-- CV será gerado aqui -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Auth Script -->
+    <script src="auth.js"></script>
+
+    <!-- Immersive Script -->
+    <script src="nexthire-immersive.js"></script>
+
+    <!-- Main Script -->
+    <script>
+        // Redirecionar para o editor original por enquanto
+        // O editor imersivo completo será implementado em breve
+        window.location.href = 'nexthire-editor.html';
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Cache - ProCV</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        .status {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Cache do ProCV</h1>
+        <p>Use este utilitário para limpar o cache e resolver problemas</p>
+
+        <button onclick="limparTudo()">🗑️ Limpar Tudo</button>
+        <button onclick="limparLocalStorage()">💾 Limpar LocalStorage</button>
+        <button onclick="limparCache()">📦 Limpar Cache</button>
+        <button onclick="abrirEditor()">✅ Abrir Editor</button>
+
+        <div class="status" id="status"></div>
+    </div>
+
+    <script>
+        function mostrarStatus(msg) {
+            document.getElementById('status').innerHTML = msg;
+        }
+
+        async function limparCache() {
+            if ('caches' in window) {
+                const names = await caches.keys();
+                await Promise.all(names.map(name => caches.delete(name)));
+                mostrarStatus('✅ Cache limpo!');
+            } else {
+                mostrarStatus('⚠️ Cache API não disponível');
+            }
+        }
+
+        function limparLocalStorage() {
+            const keys = Object.keys(localStorage);
+            const procvKeys = keys.filter(k => k.startsWith('procv'));
+
+            if (confirm(`Limpar ${procvKeys.length} itens do localStorage?`)) {
+                procvKeys.forEach(k => localStorage.removeItem(k));
+                mostrarStatus(`✅ ${procvKeys.length} itens removidos!`);
+            }
+        }
+
+        async function limparTudo() {
+            if (confirm('Limpar TUDO (cache + localStorage)?')) {
+                await limparCache();
+                localStorage.clear();
+                sessionStorage.clear();
+                mostrarStatus('✅ Tudo limpo! Recarregue a página.');
+                setTimeout(() => location.reload(), 2000);
+            }
+        }
+
+        function abrirEditor() {
+            window.location.href = 'procv-editor.html?v=' + Date.now();
+        }
+
+        // Informações
+        mostrarStatus(`
+            📊 LocalStorage: ${Object.keys(localStorage).length} itens<br>
+            💾 Tamanho: ~${JSON.stringify(localStorage).length} bytes
+        `);
+    </script>
+</body>
+
+</html>
